@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="SPS.UI.Data\**" />
+    <Compile Remove="SPS.UI.Service\**" />
+    <Content Remove="SPS.UI.Data\**" />
+    <Content Remove="SPS.UI.Service\**" />
+    <EmbeddedResource Remove="SPS.UI.Data\**" />
+    <EmbeddedResource Remove="SPS.UI.Service\**" />
+    <None Remove="SPS.UI.Data\**" />
+    <None Remove="SPS.UI.Service\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="10.0.1" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.23" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.23" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="RestSharp" Version="107.3.0" />
+    <PackageReference Include="Stripe.net" Version="39.97.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="SPS.UI.Data\SPS.UI.Data.csproj" />
+    <ProjectReference Include="SPS.UI.Service\SPS.UI.Service.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\TopMenu\" />
+  </ItemGroup>
+
+</Project>
