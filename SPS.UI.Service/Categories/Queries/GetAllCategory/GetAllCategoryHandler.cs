@@ -4,13 +4,16 @@ using SPS.UI.Data.Models.Category;
 using SPS.UI.Service.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SPS.UI.Service.Categories.Queries.GetAllCategory
 {
-    public class GetAllCategoryHandler : IRequestHandler<GetAllCategoryRequest, List<CategoryModel>>
+    public class GetAllCategoryHandler : IRequestHandler<GetAllCategoryRequest, PageListModel<CategoryModel>>
     {
         private readonly IHttpRequestExtension _httpRequestExtension;
 
@@ -19,9 +22,10 @@ namespace SPS.UI.Service.Categories.Queries.GetAllCategory
             _httpRequestExtension = httpRequestExtension;
         }
 
-        public async Task<List<CategoryModel>> Handle(GetAllCategoryRequest request, CancellationToken cancellationToken)
+        public async Task<PageListModel<CategoryModel>> Handle(GetAllCategoryRequest request, CancellationToken cancellationToken)
         {
-            var response = await _httpRequestExtension.GetRequestAsync<Response<List<CategoryModel>>>(Constants.ApiUrl.Category.Root);
+            var response = await _httpRequestExtension.GetRequestAsync<Response<PageListModel<CategoryModel>>>(Constants.ApiUrl.Category.Root,default);
+
             return response.Data;
         }
     }

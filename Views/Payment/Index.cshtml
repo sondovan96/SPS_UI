@@ -1,0 +1,189 @@
+﻿@model ShoppingCartInfoModel
+@using Microsoft.AspNetCore.Http
+@using SPS.UI.Data.Core
+@using SPS.UI.Data.Models.Order
+@inject IHttpContextAccessor _httpContextAccessor
+@{
+    ViewData["Title"] = "Check out";
+    Layout = "../Shared/_Layout.cshtml";
+    string sessionCart = _httpContextAccessor.HttpContext.Session.GetString(Constants.SessionKey.CartSession);
+}
+
+<div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
+    <div class="container">
+        <div class="breadcrumb-content text-center">
+            <ul>
+                <li>
+                    <a href="/Home">Home</a>
+                </li>
+                <li class="active">Checkout </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="checkout-area pt-95 pb-100">
+    <div class="container">
+        <form asp-controller="Payment" asp-action="Checkout" method="post">
+        <div class="row">
+            <div class="col-lg-7">
+                <div class="billing-info-wrap">
+                    <h3>Billing Details</h3>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="billing-info mb-20">
+                                <label>Recipient</label>
+                                <input type="text" name="recipient">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="billing-select mb-20">
+                                <label>Tỉnh / Thành phố</label>
+                                <select name="calc_shipping_provinces" required="">
+                                    <option value="">Tỉnh / Thành phố</option>
+                                </select>
+                                <input class="billing_address_1" name="province" type="hidden" value="">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="billing-select mb-20">
+                                <label>Quận / Huyện</label>
+                                <select name="calc_shipping_district" required="">
+                                    <option value="">Quận / Huyện</option>
+                                </select>
+                                <input class="billing_address_2" name="district" type="hidden" value="">
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="billing-info mb-20">
+                                <label>Địa chỉ</label>
+                                <input class="billing-address" name="address" type="text" value="" placeholder="Địa chỉ nhà (số nhà, đường, phường">
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="billing-info mb-20">
+                                <label>Phone number</label>
+                                <input type="tel" name="phonenumber" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="your-order-area">
+                    <h3>Your order</h3>
+                    <div class="your-order-wrap gray-bg-4">
+                        <div class="your-order-product-info">
+                            <div class="your-order-top">
+
+                                <ul>
+                                    <li>Product</li>
+                                    <li>Total</li>
+                                </ul>
+                            </div>
+                            <div class="your-order-middle">
+                                <ul>
+                                    @foreach (var item in Model.ShoppingCartItems)
+                                    {
+                                        <li><span class="order-middle-left">@item.ProductName x @item.Quantity</span> <span class="order-price">@String.Format("{0:#,##0}",item.Price*item.Quantity) </span></li>
+                                    }
+
+                                </ul>
+                            </div>
+                            <div class="your-order-bottom">
+                                <ul>
+                                    <li class="your-order-shipping">Shipping</li>
+                                    <li>Free shipping</li>
+                                </ul>
+                            </div>
+                            <div class="your-order-total">
+                                <ul>
+                                    <li class="order-total">Total</li>
+                                    <li>@String.Format("{0:#,##0}",(Model.ShoppingCartItems.Sum(x=>x.Price*x.Quantity)))</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="Place-order mt-25">
+                        <button class="btn-hover" type="submit">Payment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+
+@section jsFooter{
+<script src='https://cdn.jsdelivr.net/gh/vietblogdao/js/districts.min.js'></script>
+<script>
+    //<![CDATA[
+    if (address_2 = localStorage.getItem('address_2_saved')) {
+      $('select[name="calc_shipping_district"] option').each(function() {
+        if ($(this).text() == address_2) {
+          $(this).attr('selected', '')
+        }
+      })
+      $('input.billing_address_2').attr('value', address_2)
+    }
+    if (district = localStorage.getItem('district')) {
+      $('select[name="calc_shipping_district"]').html(district)
+      $('select[name="calc_shipping_district"]').on('change', function() {
+        var target = $(this).children('option:selected')
+        target.attr('selected', '')
+        $('select[name="calc_shipping_district"] option').not(target).removeAttr('selected')
+        address_2 = target.text()
+        $('input.billing_address_2').attr('value', address_2)
+        district = $('select[name="calc_shipping_district"]').html()
+        localStorage.setItem('district', district)
+        localStorage.setItem('address_2_saved', address_2)
+      })
+    }
+    $('select[name="calc_shipping_provinces"]').each(function() {
+      var $this = $(this),
+        stc = ''
+      c.forEach(function(i, e) {
+        e += +1
+        stc += '<option value=' + e + '>' + i + '</option>'
+        $this.html('<option value="">Tỉnh / Thành phố</option>' + stc)
+        if (address_1 = localStorage.getItem('address_1_saved')) {
+          $('select[name="calc_shipping_provinces"] option').each(function() {
+            if ($(this).text() == address_1) {
+              $(this).attr('selected', '')
+            }
+          })
+          $('input.billing_address_1').attr('value', address_1)
+        }
+        $this.on('change', function(i) {
+          i = $this.children('option:selected').index() - 1
+          var str = '',
+            r = $this.val()
+          if (r != '') {
+            arr[i].forEach(function(el) {
+              str += '<option value="' + el + '">' + el + '</option>'
+              $('select[name="calc_shipping_district"]').html('<option value="">Quận / Huyện</option>' + str)
+            })
+            var address_1 = $this.children('option:selected').text()
+            var district = $('select[name="calc_shipping_district"]').html()
+            localStorage.setItem('address_1_saved', address_1)
+            localStorage.setItem('district', district)
+            $('select[name="calc_shipping_district"]').on('change', function() {
+              var target = $(this).children('option:selected')
+              target.attr('selected', '')
+              $('select[name="calc_shipping_district"] option').not(target).removeAttr('selected')
+              var address_2 = target.text()
+              $('input.billing_address_2').attr('value', address_2)
+              district = $('select[name="calc_shipping_district"]').html()
+              localStorage.setItem('district', district)
+              localStorage.setItem('address_2_saved', address_2)
+            })
+          } else {
+            $('select[name="calc_shipping_district"]').html('<option value="">Quận / Huyện</option>')
+            district = $('select[name="calc_shipping_district"]').html()
+            localStorage.setItem('district', district)
+            localStorage.removeItem('address_1_saved', address_1)
+          }
+        })
+      })
+    })
+    //]]></script>
+}

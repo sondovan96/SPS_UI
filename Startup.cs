@@ -6,13 +6,17 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SPS.UI.Data.Core;
 using SPS.UI.Data.Models.Stripe;
+using SPS.UI.Filters;
 using SPS.UI.Service.Extensions;
+using SPS.UI.Service.Extensions.EmailSender;
 using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace SPS.UI
@@ -29,7 +33,8 @@ namespace SPS.UI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHttpContextAccessor();
+
+
 
             services.Configure<StripeModel>(Configuration.GetSection("Stripe"));
             StripeConfiguration.ApiKey = Configuration.GetSection("Stripe:SecretKey").Get<string>();
@@ -43,18 +48,35 @@ namespace SPS.UI
                 option.Cookie.IsEssential = true;
             });
 
+#if DEBUG
+            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, errors) =>
+            { return true; };
+            ServicePointManager.DefaultConnectionLimit = 9999;
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
+#endif
+
+
+            services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IHttpRequestExtension, HttpRequestExtension>();
-            //services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddTransient<IGridEmailSender, GridEmailSender>();
+
 
             services.Configure<RestSharpConfiguration>(Configuration.GetSection("HttpRequest"));
 
             services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddOptions();
+#if DEBUG
+            services.AddControllersWithViews(otp=>
+            {
+                otp.Filters.Add<UnhandleExceptionFilterAttribute>();
+            }).AddRazorRuntimeCompilation();
+ #endif
 
-            services.AddControllersWithViews();
+            services.AddControllers().AddNewtonsoftJson();
 
-            services.AddRazorPages();
+            services.AddRazorPages().AddRazorRuntimeCompilation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -72,13 +94,14 @@ namespace SPS.UI
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseSession();
 
             app.UseAuthentication();
 
             app.UseRouting();
 
             app.UseAuthorization();
-            app.UseSession();
+
 
             app.UseEndpoints(endpoints =>
             {

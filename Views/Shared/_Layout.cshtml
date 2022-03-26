@@ -9,10 +9,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="../assets/img/favicon.png">
-    
+
     <!-- CSS
-	============================================ -->
-   
+    ============================================ -->
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <!-- Icon Font CSS -->
@@ -23,28 +22,34 @@
     <link rel="stylesheet" href="../assets/css/style.css">
     <!-- Modernizer JS -->
     <script src="../assets/js/vendor/modernizr-2.8.3.min.js"></script>
+
 </head>
 
 <body>
-
+    @await Html.PartialAsync("_Header");
     @RenderBody()
+    @await Html.PartialAsync("_Footer");
 
-<!-- All JS is here
-============================================ -->
+    <!-- All JS is here
+    ============================================ -->
+    <!-- jQuery JS -->
+    <script src="../assets/js/vendor/jquery-1.12.4.min.js"></script>
+    <!-- Popper JS -->
+    <script src="../assets/js/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <!-- Plugins JS -->
+    <script src="../assets/js/plugins.js"></script>
+    <!-- Ajax Mail -->
+    <script src="../assets/js/ajax-mail.js"></script>
+    <!-- Main JS -->
+    <script src="../assets/js/main.js"></script>
+    <!-- SweetAlert JS-->
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- My JS-->
+    <script src="../js/site.js"></script>
 
-<!-- jQuery JS -->
-<script src="../assets/js/vendor/jquery-1.12.4.min.js"></script>
-<!-- Popper JS -->
-<script src="../assets/js/popper.min.js"></script>
-<!-- Bootstrap JS -->
-<script src="../assets/js/bootstrap.min.js"></script>
-<!-- Plugins JS -->
-<script src="../assets/js/plugins.js"></script>
-<!-- Ajax Mail -->
-<script src="../assets/js/ajax-mail.js"></script>
-<!-- Main JS -->
-<script src="../assets/js/main.js"></script>
-
+    @RenderSection("jsFooter",false);
 </body>
 
 </html>
