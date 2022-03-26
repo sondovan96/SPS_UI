@@ -1,0 +1,20 @@
+﻿
+@{
+     ViewData["Title"] = "EmailConfirm";
+    string email = ViewData["Email"] as string;
+    Layout = "../Shared/_Layout.cshtml";
+}
+
+<div class ="container">
+    <br/>
+    <p class="align-content-center"> A Email confirmation has been sent to your email address at @email</p>
+    <p class="align-content-center">Don't see any email from us?</p>
+    <div style="text-align: center">
+        <form method="post" asp-controller="Account" asp-action="SendConfirmEmail">
+            <input type ="hidden" name ="Email" value="@email" />
+            <input type ="submit" value="Click here" />
+        </form>
+    </div>
+</div>
+
+

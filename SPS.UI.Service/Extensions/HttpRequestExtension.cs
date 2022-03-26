@@ -9,7 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Security;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -27,6 +30,9 @@ namespace SPS.UI.Service.Extensions
             _httpContextAccessor = httpContextAccessor;
             _restSharpConfiguration = options.Value;
             _logger = logger;
+
+
+
         }
         #region Method Private
         private string Token { get => _httpContextAccessor.HttpContext.Session.GetString(Constants.SessionKey.Token); }
@@ -54,7 +60,7 @@ namespace SPS.UI.Service.Extensions
             {
                 request.AddHeader(Constants.Request.Header.Authorization, $"{TokenScheme} {Token}");
             }
-            request.AddHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+            request.AddHeader("Accept", "text/html,application/json,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
 
             if (queries != null)
             {
@@ -155,14 +161,19 @@ namespace SPS.UI.Service.Extensions
             return response;
         }
 
-        public async Task<T> GetRequestAsync<T>(string url, List<QueryPamaramsModel> queries = null)
+        public async Task<T> GetRequestAsync<T>(string url, List<QueryPamaramsModel> queries)
         {
             RestRequest request = CreateRestRequest(url, queries);
             T response = default(T);
             try
             {
-                var responseContent = await new RestClient(_restSharpConfiguration.HostUrl).GetAsync<string>(request);
-                HandleResponse(response);
+
+                //string responseContent = await new RestClient(_restSharpConfiguration.HostUrl).GetAsync<string>(request);
+                //response = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(responseContent);
+                //HandleResponse(response);
+                var responseContent = await new RestClient(_restSharpConfiguration.HostUrl).GetAsync<T>(request);
+                _logger?.LogInformation($"Get {url} : {JsonSerializer.Serialize(response)}");
+                return responseContent;
             }
             catch (ResponseFailureException ex)
             {
@@ -172,8 +183,7 @@ namespace SPS.UI.Service.Extensions
             {
                 _logger?.LogError($"ERROR GET {url} : {ex.Message}");
             }
-            _logger?.LogInformation($"Get {url} : {JsonSerializer.Serialize(response)}");
-            return response;
+           return response;
         }
 
         public async Task<T> PostFormRequestAsync<T>(string url, object data, List<QueryPamaramsModel> queries = null)
@@ -200,12 +210,13 @@ namespace SPS.UI.Service.Extensions
         public async Task<T> PostJsonRequestAsync<T>(string url, object data, List<QueryPamaramsModel> queries = null)
         {
             RestRequest request = CreateJsonRestRequest(url, data, queries);
+            request.Method = Method.Post;
             T response = default(T);
             try
             {
-                var responseContent = await new RestClient(_restSharpConfiguration.HostUrl).PostAsync<string>(request);
-                response = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(responseContent);
-                HandleResponse(response);
+                var responseContent = await new RestClient(_restSharpConfiguration.HostUrl).PostAsync<T>(request);
+                _logger?.LogInformation($"Post {url} : {JsonSerializer.Serialize(response)}");
+                return responseContent;
             }
             catch (ResponseFailureException ex)
             {
@@ -215,7 +226,6 @@ namespace SPS.UI.Service.Extensions
             {
                 _logger?.LogError($"ERROR Post {url} : {ex.Message}");
             }
-            _logger?.LogInformation($"Post {url} : {JsonSerializer.Serialize(response)}");
             return response;
         }
 

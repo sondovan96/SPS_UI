@@ -9,7 +9,7 @@ namespace SPS.UI.Data.Models.Category
         public Guid Id { get; set; }
         public string Title { set; get; }
         public string MetaTitle { set; get; }
-        public Guid ParentId { set; get; }
+        public string ParentId { set; get; }
         public CategoryModel ParentCategory { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
